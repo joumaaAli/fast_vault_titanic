@@ -5,7 +5,6 @@ from app.database import get_db, User as DBUser
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer
-from pydantic import BaseModel
 import os
 
 SECRET_KEY = os.getenv("SECRET_KEY")

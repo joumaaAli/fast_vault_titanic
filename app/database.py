@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Date, Float, Text, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Date, Float, Text, ForeignKey, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from passlib.context import CryptContext
@@ -27,25 +27,29 @@ class User(Base):
         self.hashed_password = pwd_context.hash(password)
 
 class DataRecord(Base):
-    __tablename__ = 'data_records'
+    __tablename__ = 'data_records_titanic'
 
     id = Column(Integer, primary_key=True, index=True)
-    arrival_date = Column(Date, nullable=False)
-    efficiency = Column(Float, nullable=False)
-    leaving_date = Column(Date, nullable=False)
+    survived = Column(Boolean, nullable=False)
+    pclass = Column(Integer, nullable=False)
+    name = Column(String, nullable=False)
+    sex = Column(String, nullable=False)
+    age = Column(Float, nullable=True)
+    sibsp = Column(Integer, nullable=False)
+    parch = Column(Integer, nullable=False)
+    ticket = Column(String, nullable=False)
+    fare = Column(Float, nullable=False)
+    cabin = Column(String, nullable=True)
+    embarked = Column(String, nullable=True)
 
 class SyntheticData(Base):
-    __tablename__ = 'synthetic_data'
+    __tablename__ = 'synthetic_data_titanic'
 
     id = Column(Integer, primary_key=True, index=True)
     synthesizer_type = Column(String, index=True)
-    data = Column(Text)  # Store data as a JSON string
-    original_data_ids = Column(Text)  # Store the list of original data IDs as a JSON string
+    data = Column(String)
+    original_data_ids = Column(String)
 
-    def __init__(self, synthesizer_type, data, original_data_ids):
-        self.synthesizer_type = synthesizer_type
-        self.data = data
-        self.original_data_ids = json.dumps(original_data_ids)
 
 def get_db():
     db = SessionLocal()
