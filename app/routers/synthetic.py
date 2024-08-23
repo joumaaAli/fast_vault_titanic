@@ -14,8 +14,10 @@ from sklearn.metrics import accuracy_score
 from app.common.models import User, DataRecord, SyntheticData
 import pandas as pd
 import simplejson as json
+import joblib
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
+import os
 
 router = APIRouter()
 
@@ -86,6 +88,9 @@ async def augment_and_train(synthesizer_type: str = "ctgan",
 
     model = RandomForestClassifier(random_state=42)
     model.fit(X_train, y_train)
+
+    model_path = os.path.join(os.getcwd(), "model.joblib")
+    joblib.dump(model, model_path)
 
     y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)

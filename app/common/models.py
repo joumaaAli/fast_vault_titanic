@@ -41,3 +41,12 @@ class SyntheticData(Base):
     synthesizer_type = Column(String, index=True)
     data = Column(String)  # Store data as a JSON string
     original_data_ids = Column(String)  # Store the list of original data IDs as a JSON string
+
+class PredictionInput(BaseModel):
+    pclass: int
+    sex: int  # Assuming you've encoded 'sex' as 0 for male, 1 for female
+    age: float
+    sibsp: int
+    parch: int
+    fare: float
+    embarked: int  #
