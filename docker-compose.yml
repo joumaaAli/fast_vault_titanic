@@ -1,17 +1,14 @@
 version: '3.8'
 
 services:
-  fastapi_app:
+  web:
+    build: .
     image: alijoumaa/fast-vault:latest
+    container_name: fastapi_app
+    restart: always
     ports:
       - "8003:8001"
     env_file:
       - .env
     environment:
-      - DATABASE_URL=${DATABASE_URL}
-    networks:
-      - my_network
-
-networks:
-  my_network:
-    driver: bridge
+      DATABASE_URL: postgresql://postgres:postgres@94.130.105.162:2003/postgres
