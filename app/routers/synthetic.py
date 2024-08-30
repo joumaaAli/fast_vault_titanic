@@ -1,35 +1,37 @@
 # app/routers/synthetic.py
 
-from concurrent.futures import ThreadPoolExecutor
+import asyncio
+import logging
+from concurrent.futures import ProcessPoolExecutor
 
-from fastapi import APIRouter, Depends
-from fastapi import BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-import asyncio
 
 from app.auth.utils import get_current_user
 from app.common.models import User
 from app.common.tasks import augment_and_train_task, evaluate_synthetic_data_task, generate_synthetic_data_task
 from app.database import get_db
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+# Initialize a ProcessPoolExecutor with a limited number of processes
+executor = ProcessPoolExecutor(max_workers=4)
+
 router = APIRouter()
-
-
-# Initialize a ThreadPoolExecutor with a limited number of threads
-executor = ThreadPoolExecutor(max_workers=4)
-
 
 @router.post("/generate_synthetic_data/")
 async def generate_synthetic_data(background_tasks: BackgroundTasks,
                                   db: Session = Depends(get_db),
                                   current_user: User = Depends(get_current_user),
-                                  synthesizer_type: str = "ctgan"):  # Default parameter at the end
-    # Function body remains the same
+                                  synthesizer_type: str = "ctgan"):
+    logger.info(f"Received request to generate synthetic data using {synthesizer_type}")
     loop = asyncio.get_running_loop()
     synthetic_data_id = await loop.run_in_executor(
         executor, generate_synthetic_data_task, synthesizer_type, db, current_user
     )
+    logger.info(f"Synthetic data generation completed with ID: {synthetic_data_id}")
 
     return {"status": "Synthetic data generation initiated", "synthetic_data_id": synthetic_data_id}
 
@@ -40,10 +42,13 @@ async def augment_and_train(background_tasks: BackgroundTasks,
                             current_user: User = Depends(get_current_user),
                             synthesizer_type: str = "ctgan",
                             augmentation_factor: int = 2):
+    logger.info(f"Received request to augment and train model with synthesizer {synthesizer_type}")
     loop = asyncio.get_running_loop()
     accuracy = await loop.run_in_executor(
         executor, augment_and_train_task, synthesizer_type, augmentation_factor, db, current_user
     )
+    logger.info(f"Model training completed with accuracy: {accuracy}")
+
     return {"status": "Model training initiated", "accuracy": accuracy}
 
 
@@ -52,9 +57,11 @@ async def evaluate_synthetic_data(synthetic_data_id: int,
                                   background_tasks: BackgroundTasks,
                                   db: Session = Depends(get_db),
                                   current_user: User = Depends(get_current_user)):
+    logger.info(f"Received request to evaluate synthetic data with ID: {synthetic_data_id}")
     loop = asyncio.get_running_loop()
     scores = await loop.run_in_executor(
         executor, evaluate_synthetic_data_task, synthetic_data_id, db
     )
+    logger.info(f"Evaluation completed for synthetic data ID: {synthetic_data_id}")
 
     return JSONResponse(content=scores)
