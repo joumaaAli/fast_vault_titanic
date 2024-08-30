@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.security import OAuth2PasswordBearer
 from app.routers.auth import router as auth_router
@@ -26,12 +28,10 @@ app.include_router(models_router, prefix="/models", tags=["models"])
 
 app.include_router(health_router, prefix="/health", tags=["health"])
 
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     logger.info("Starting up the FastAPI application...")
-
-@app.on_event("shutdown")
-async def shutdown_event():
+    yield
     logger.info("Shutting down the FastAPI application...")
 
 @app.get("/")
