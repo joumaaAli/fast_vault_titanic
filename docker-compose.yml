@@ -13,16 +13,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@94.130.105.162:2003/postgres
       LOG_LEVEL: "info"  # Set the logging level
-    deploy:
-      resources:
-        limits:
-          cpus: "1"       # Limit to 1 full CPU core
-          memory: "512M"  # Limit memory usage to 512 MB
-    command: >
-      uvicorn app.main:app 
-      --host 0.0.0.0 
-      --port 8001 
-      --workers 4  # Adjusted number of workers
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001", "--workers", "4", "--timeout-keep-alive", "120"]
     logging:
       driver: "json-file"
       options:
