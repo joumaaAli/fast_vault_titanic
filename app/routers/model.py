@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-import pandas as pd
 import joblib  # To load the model
-from app.database import get_db
+import pandas as pd
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+
 from app.auth.utils import get_current_user
 from app.common.models import User, PredictionInput
+from app.database import get_db
 
 router = APIRouter()
 

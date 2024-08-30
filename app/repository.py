@@ -28,3 +28,4 @@ def convert_data_records_to_dataframe(data_records):
         'embarked': record.embarked,
         'survived': record.survived
     } for record in data_records])
+
