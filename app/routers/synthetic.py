@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends
 from fastapi import BackgroundTasks
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
+import asyncio
 
 from app.auth.utils import get_current_user
 from app.common.models import User
@@ -25,8 +26,10 @@ async def generate_synthetic_data(background_tasks: BackgroundTasks,
                                   current_user: User = Depends(get_current_user),
                                   synthesizer_type: str = "ctgan"):  # Default parameter at the end
     # Function body remains the same
-    future = executor.submit(generate_synthetic_data_task, synthesizer_type, db, current_user)
-    synthetic_data_id = await future
+    loop = asyncio.get_running_loop()
+    synthetic_data_id = await loop.run_in_executor(
+        executor, generate_synthetic_data_task, synthesizer_type, db, current_user
+    )
 
     return {"status": "Synthetic data generation initiated", "synthetic_data_id": synthetic_data_id}
 
@@ -35,11 +38,12 @@ async def generate_synthetic_data(background_tasks: BackgroundTasks,
 async def augment_and_train(background_tasks: BackgroundTasks,
                             db: Session = Depends(get_db),
                             current_user: User = Depends(get_current_user),
-                            synthesizer_type: str = "ctgan",  # Default parameter moved to the end
-                            augmentation_factor: int = 2):  # Default parameter moved to the end
-    future = executor.submit(augment_and_train_task, synthesizer_type, augmentation_factor, db, current_user)
-    accuracy = await future
-
+                            synthesizer_type: str = "ctgan",
+                            augmentation_factor: int = 2):
+    loop = asyncio.get_running_loop()
+    accuracy = await loop.run_in_executor(
+        executor, augment_and_train_task, synthesizer_type, augmentation_factor, db, current_user
+    )
     return {"status": "Model training initiated", "accuracy": accuracy}
 
 
@@ -48,7 +52,9 @@ async def evaluate_synthetic_data(synthetic_data_id: int,
                                   background_tasks: BackgroundTasks,
                                   db: Session = Depends(get_db),
                                   current_user: User = Depends(get_current_user)):
-    future = executor.submit(evaluate_synthetic_data_task, synthetic_data_id, db)
-    scores = await future
+    loop = asyncio.get_running_loop()
+    scores = await loop.run_in_executor(
+        executor, evaluate_synthetic_data_task, synthetic_data_id, db
+    )
 
     return JSONResponse(content=scores)
