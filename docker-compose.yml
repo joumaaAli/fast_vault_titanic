@@ -11,7 +11,7 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@94.130.105.162:2003/postgres
+      DATABASE_URL: postgresql://postgres:postgres@94.130.105.162:2002/postgres
       LOG_LEVEL: "info"  # Set the logging level
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001", "--workers", "4", "--timeout-keep-alive", "120"]
     logging:
