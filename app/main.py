@@ -1,39 +1,34 @@
-from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
-from fastapi.security import OAuth2PasswordBearer
-from app.routers.auth import router as auth_router
-from app.routers.synthetic import router as synthetic_router
-from app.routers.health import router as health_router
-from app.routers.model import router as models_router
-import logging
-
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler()]
-)
-
-logger = logging.getLogger(__name__)
+from fastapi.openapi.models import OpenAPI
+from fastapi.openapi.utils import get_openapi
+from app.middleware.auth_middleware import AuthMiddleware
+from app.routers import synthetic, auth
 
 app = FastAPI()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+app.add_middleware(AuthMiddleware)  # Add middleware before including routers
 
-app.include_router(auth_router, prefix="/auth", tags=["auth"])
-app.include_router(synthetic_router, prefix="/synthetic", tags=["synthetic"])
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="Your API Title",
+        version="1.0.0",
+        description="Your API description",
+        routes=app.routes,
+    )
+    openapi_schema["components"]["securitySchemes"] = {
+        "BearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+        }
+    }
+    openapi_schema["security"] = [{"BearerAuth": []}]
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
 
-app.include_router(models_router, prefix="/models", tags=["models"])
+app.openapi = custom_openapi
 
-app.include_router(health_router, prefix="/health", tags=["health"])
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    logger.info("Starting up the FastAPI application...")
-    yield
-    logger.info("Shutting down the FastAPI application...")
-
-@app.get("/")
-async def root():
-    return {"message": "Welcome to the FastAPI with SDV example"}
+app.include_router(synthetic.router, prefix="/synthetic", tags=["synthetic"])
+app.include_router(auth.router, prefix="/auth", tags=["auth"])
