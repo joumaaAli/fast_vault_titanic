@@ -26,10 +26,10 @@ def generate_synthetic_data(db, synthesizer_type: str):
     data = convert_data_records_to_dataframe(data_records)
     original_data_ids = list(data['id'])
 
-    # Drop only 'name' and 'email' columns
-    data = data.drop(columns=['id', 'name', 'email'], errors='ignore')
+    # Drop 'name', 'email', 'ticket', and 'cabin' columns
+    data = data.drop(columns=['id', 'name', 'email', 'ticket', 'cabin'], errors='ignore')
 
-    sensitive_columns = ['ticket']  # Adjust sensitive columns if necessary
+    sensitive_columns = []  # No sensitive columns to anonymize now
     data = anonymize_data(data, sensitive_columns)
 
     metadata = SingleTableMetadata()
@@ -52,7 +52,6 @@ def generate_synthetic_data(db, synthesizer_type: str):
     logger.info(f"Synthetic data generation completed successfully. ID: {saved_synthetic_data.id}")
     return saved_synthetic_data.id
 
-
 def evaluate_synthetic_data(db, synthetic_data_id: int):
     synthetic_data_record = get_synthetic_data_by_id(db, synthetic_data_id)
     if not synthetic_data_record:
@@ -64,22 +63,19 @@ def evaluate_synthetic_data(db, synthetic_data_id: int):
     synthetic_data = pd.read_json(synthetic_data_record.data)
 
     # Drop columns that are not used for evaluation
-    real_data = real_data.drop(columns=['id', 'name', 'email'], errors='ignore')
-    synthetic_data = synthetic_data.drop(columns=['id', 'name', 'email'], errors='ignore')
+    real_data = real_data.drop(columns=['id', 'name', 'email', 'ticket', 'cabin'], errors='ignore')
+    synthetic_data = synthetic_data.drop(columns=['id', 'name', 'email', 'ticket', 'cabin'], errors='ignore')
 
     # Create metadata that reflects all columns in the data
     metadata = SingleTableMetadata()
     for column in real_data.columns:
-        if column in ['cabin', 'ticket']:
-            metadata.add_column(column, sdtype='categorical')
-        elif column == 'age':
+        if column == 'age':
             metadata.add_column(column, sdtype='numerical')
         else:
             metadata.add_column(column, sdtype='categorical')  # Default to categorical if not specified
 
     scores = evaluate_data_quality(synthetic_data, real_data, metadata)
     return scores
-
 
 def augment_and_train(db, synthesizer_type: str, augmentation_factor: int):
     logger.info(
@@ -88,8 +84,8 @@ def augment_and_train(db, synthesizer_type: str, augmentation_factor: int):
     data_records = get_all_data_records(db)
     data = convert_data_records_to_dataframe(data_records)
 
-    # Drop only 'name' and 'email' columns
-    data = data.drop(columns=['id', 'name', 'email', 'ticket'], errors='ignore')
+    # Drop 'name', 'email', 'ticket', and 'cabin' columns
+    data = data.drop(columns=['id', 'name', 'email', 'ticket', 'cabin'], errors='ignore')
 
     metadata = SingleTableMetadata()
     metadata.detect_from_dataframe(data)

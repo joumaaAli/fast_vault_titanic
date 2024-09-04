@@ -10,9 +10,7 @@ class DataRecord(BaseModel):
     age: Optional[float]
     sibsp: int
     parch: int
-    ticket: str
     fare: float
-    cabin: Optional[str]
     embarked: Optional[str]
     model_config = {
         'from_attributes': True
