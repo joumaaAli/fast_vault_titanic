@@ -1,11 +1,19 @@
+
 import logging
+
+import os
+import sys
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config, pool
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
 from alembic import context
+from sqlalchemy import engine_from_config, pool
+from app.db.base import Base  # Import your models here
+from app.db.models import *  # This will import all models via __init__.py
+
 from app.core.config import settings  # Import your DB URL from the application
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+
 config = context.config
 
 # Manually configure logging to avoid 'formatters' error
@@ -20,7 +28,6 @@ if config.config_file_name is not None:
 config.set_main_option('sqlalchemy.url', settings.database_url)
 
 # Add your models' metadata here
-from app.db.base import Base  # Import your models here
 target_metadata = Base.metadata
 
 def run_migrations_offline():

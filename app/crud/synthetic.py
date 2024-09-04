@@ -1,10 +1,8 @@
 import pandas as pd
 from sqlalchemy.orm import Session
 
-from app.db.models.data_record import DBDataRecord
-from app.entities.data_record import DataRecord
-from app.entities.synthetic_data import SyntheticData
 from app.db.models.synthetic_data import DBSyntheticData
+from app.entities.synthetic_data import SyntheticData
 
 
 def get_synthetic_data_by_id(db: Session, synthetic_data_id: int):
@@ -27,9 +25,9 @@ def save_synthetic_data(db: Session, synthesizer_type: str, data: str, original_
     return SyntheticData.model_validate(db_record)
 
 
-def get_all_data_records(db: Session):
-    db_records = db.query(DBDataRecord).all()
-    return [DataRecord.model_validate(record) for record in db_records]
+# def get_all_data_records(db: Session):
+#     db_records = db.query(DBDataRecord).all()
+#     return [DataRecord.model_validate(record) for record in db_records]
 
 def convert_data_records_to_dataframe(records):
     return pd.DataFrame([record.dict() for record in records])

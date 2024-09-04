@@ -78,9 +78,11 @@ async def run_migrations():
         alembic_cfg.set_main_option("sqlalchemy.url", settings.database_url)
 
         # Ensure Alembic knows where the migration scripts are
+        logger.info("Setting script location for Alembic migrations.")
         alembic_cfg.set_main_option("script_location", os.path.join(os.path.dirname(__file__), "alembic"))
 
         # Run migrations
+        logger.info("Executing Alembic upgrade command...")
         command.upgrade(alembic_cfg, "head")
 
         logger.info("Migrations complete.")
