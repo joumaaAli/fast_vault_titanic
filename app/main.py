@@ -1,12 +1,20 @@
+# app/main.py
 from fastapi import FastAPI
-from fastapi.openapi.models import OpenAPI
 from fastapi.openapi.utils import get_openapi
 from app.middleware.auth_middleware import AuthMiddleware
-from app.routers import synthetic, auth
+from app.middleware.db_middleware import DBSessionMiddleware
+from app.api.v1.router import router as api_router
+from app.core.logger import configure_logging
 
+configure_logging()
 app = FastAPI()
 
-app.add_middleware(AuthMiddleware)  # Add middleware before including routers
+# Add AuthMiddleware after DBSessionMiddleware
+app.add_middleware(AuthMiddleware)
+
+# Add DBSessionMiddleware first
+app.add_middleware(DBSessionMiddleware)
+
 
 def custom_openapi():
     if app.openapi_schema:
@@ -30,5 +38,4 @@ def custom_openapi():
 
 app.openapi = custom_openapi
 
-app.include_router(synthetic.router, prefix="/synthetic", tags=["synthetic"])
-app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(api_router, prefix="/api/v1")
