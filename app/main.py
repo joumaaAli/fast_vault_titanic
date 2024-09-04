@@ -63,29 +63,29 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, general_exception_handler)
 
 
-@app.on_event("startup")
-async def run_migrations():
-    """
-    Runs Alembic migrations when the application starts.
-    """
-    try:
-        logger.info("Running migrations...")
-
-        # Create an Alembic Config object and specify the ini file path
-        alembic_cfg = Config(os.path.join(os.path.dirname(__file__), '../alembic.ini'))
-
-        # Update the sqlalchemy.url dynamically
-        alembic_cfg.set_main_option("sqlalchemy.url", settings.database_url)
-
-        # Ensure Alembic knows where the migration scripts are
-        logger.info("Setting script location for Alembic migrations.")
-        alembic_cfg.set_main_option("script_location", os.path.join(os.path.dirname(__file__), "alembic"))
-
-        # Run migrations
-        logger.info("Executing Alembic upgrade command...")
-        command.upgrade(alembic_cfg, "head")
-
-        logger.info("Migrations complete.")
-    except Exception as e:
-        logger.error(f"Error running migrations: {e}")
-        raise e
+# @app.on_event("startup")
+# async def run_migrations():
+#     """
+#     Runs Alembic migrations when the application starts.
+#     """
+#     try:
+#         logger.info("Running migrations...")
+#
+#         # Create an Alembic Config object and specify the ini file path
+#         alembic_cfg = Config(os.path.join(os.path.dirname(__file__), '../alembic.ini'))
+#
+#         # Update the sqlalchemy.url dynamically
+#         alembic_cfg.set_main_option("sqlalchemy.url", settings.database_url)
+#
+#         # Ensure Alembic knows where the migration scripts are
+#         logger.info("Setting script location for Alembic migrations.")
+#         alembic_cfg.set_main_option("script_location", os.path.join(os.path.dirname(__file__), "alembic"))
+#
+#         # Run migrations
+#         logger.info("Executing Alembic upgrade command...")
+#         command.upgrade(alembic_cfg, "head")
+#
+#         logger.info("Migrations complete.")
+#     except Exception as e:
+#         logger.error(f"Error running migrations: {e}")
+#         raise e
