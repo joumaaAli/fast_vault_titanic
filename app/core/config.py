@@ -1,13 +1,16 @@
 from pydantic_settings import BaseSettings
 from pydantic import Field
+import os
 
 class Settings(BaseSettings):
-    database_url: str = Field(..., env='DATABASE_URL')  # Load from .env or environment variables
-    secret_key: str = Field(..., env='SECRET_KEY')      # Load from .env or environment variables
-    algorithm: str = Field(default="HS256")             # Default value if not set
+    database_url: str = Field(..., env='DATABASE_URL')
+    secret_key: str = Field(..., env='SECRET_KEY')
+    algorithm: str = Field(default="HS256")
 
     class Config:
-        env_file = '../../.env'  # Path to your .env file
+        # Specify the path to the .env file
+        env_file = os.path.join(os.path.dirname(__file__), '../../.env')
+        env_file_encoding = 'utf-8'
 
-# Instantiate the settings object, which will load variables
+# Instantiate the settings object
 settings = Settings()

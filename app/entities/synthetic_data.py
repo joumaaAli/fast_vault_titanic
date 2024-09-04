@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from enum import Enum
 
 class SyntheticData(BaseModel):
     id: Optional[int]
@@ -9,3 +10,8 @@ class SyntheticData(BaseModel):
     model_config = {
         'from_attributes': True
     }
+
+class SynthesizerType(str, Enum):
+    ctgan = "ctgan"
+    copulagan = "copulagan"
+    gaussiancopula = "gaussiancopula"

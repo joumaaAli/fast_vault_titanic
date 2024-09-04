@@ -1,8 +1,9 @@
-import logging
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 from app.schema.synthetic import SyntheticDataResponse
 from app.services.data_services import generate_synthetic_data, evaluate_synthetic_data, augment_and_train
+from app.entities.synthetic_data import SynthesizerType  # Import the SynthesizerType enum
+import logging
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -10,7 +11,7 @@ logger = logging.getLogger(__name__)
 @router.post("/generate/", response_model=SyntheticDataResponse)
 async def generate_synthetic_data_endpoint(
     request: Request,
-    synthesizer_type: str = "ctgan"
+    synthesizer_type: SynthesizerType  # Use the enum here
 ):
     user = getattr(request.state, 'user', None)
     if not user:
@@ -22,9 +23,9 @@ async def generate_synthetic_data_endpoint(
     db = request.state.db
 
     try:
-        synthetic_data_id = generate_synthetic_data(db, synthesizer_type)
+        synthetic_data_id = generate_synthetic_data(db, synthesizer_type.value)  # Pass the value to the function
         logger.info(f"Synthetic data generation completed with ID: {synthetic_data_id}")
-        return {"id": synthetic_data_id, "synthesizer_type": synthesizer_type}
+        return {"id": synthetic_data_id, "synthesizer_type": synthesizer_type.value}
     except Exception as e:
         logger.error(f"Error during synthetic data generation: {e}")
         raise HTTPException(status_code=500, detail="Error generating synthetic data")
@@ -32,7 +33,7 @@ async def generate_synthetic_data_endpoint(
 @router.post("/augment-and-train/")
 async def augment_and_train_endpoint(
     request: Request,
-    synthesizer_type: str = "ctgan",
+    synthesizer_type: SynthesizerType,  # Use the enum here
     augmentation_factor: int = 2
 ):
     user = getattr(request.state, 'user', None)
@@ -45,7 +46,7 @@ async def augment_and_train_endpoint(
     db = request.state.db
 
     try:
-        accuracy = augment_and_train(db, synthesizer_type, augmentation_factor)
+        accuracy = augment_and_train(db, synthesizer_type.value, augmentation_factor)  # Pass the value to the function
         logger.info(f"Model training completed with accuracy: {accuracy}")
         return {"status": "Model training initiated", "accuracy": accuracy}
     except Exception as e:
