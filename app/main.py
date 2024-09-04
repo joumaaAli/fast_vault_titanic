@@ -10,7 +10,7 @@ from app.core.logger import configure_logging
 from alembic.config import Config
 from alembic import command
 import logging
-from app.db.session import DATABASE_URL
+from app.core.config import settings
 
 configure_logging()
 
@@ -61,7 +61,7 @@ async def run_migrations():
         alembic_cfg = Config(os.path.join(os.path.dirname(__file__), '../alembic.ini'))
 
         # Update the sqlalchemy.url dynamically
-        alembic_cfg.set_main_option("sqlalchemy.url", DATABASE_URL)
+        alembic_cfg.set_main_option("sqlalchemy.url", settings.database_url)
 
         # Ensure Alembic knows where the migration scripts are
         alembic_cfg.set_main_option("script_location", os.path.join(os.path.dirname(__file__), "alembic"))

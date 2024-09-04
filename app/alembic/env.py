@@ -2,7 +2,7 @@ import logging
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
-from app.db.session import DATABASE_URL  # Import your DB URL from the application
+from app.core.config import settings  # Import your DB URL from the application
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -17,7 +17,7 @@ if config.config_file_name is not None:
         logging.getLogger('alembic').info(f"Manual logging setup due to missing configuration key: {e}")
 
 # Set your database URL dynamically
-config.set_main_option('sqlalchemy.url', DATABASE_URL)
+config.set_main_option('sqlalchemy.url', settings.database_url)
 
 # Add your models' metadata here
 from app.db.base import Base  # Import your models here
