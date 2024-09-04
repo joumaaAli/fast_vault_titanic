@@ -75,10 +75,6 @@ def evaluate_synthetic_data(db, synthetic_data_id: int):
     real_data = real_data.drop(columns=[col for col in columns_to_drop if col in real_data.columns], errors='ignore')
     synthetic_data = synthetic_data.drop(columns=[col for col in columns_to_drop if col in synthetic_data.columns], errors='ignore')
 
-    # Ensure that both datasets have the same columns
-    print("Real data columns after dropping:", real_data.columns)
-    print("Synthetic data columns after dropping:", synthetic_data.columns)
-
     # Create metadata that reflects all columns in the data
     metadata = SingleTableMetadata()
     for column in real_data.columns:
@@ -95,7 +91,6 @@ def evaluate_synthetic_data(db, synthetic_data_id: int):
     # Evaluate data quality
     scores = evaluate_data_quality(synthetic_data, real_data, metadata)
     return scores
-
 
 def augment_and_train(db, synthesizer_type: str, augmentation_factor: int):
     logger.info(
