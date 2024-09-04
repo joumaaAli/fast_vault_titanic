@@ -1,16 +1,25 @@
 # app/main.py
+
+import logging
 import os
 
+from alembic import command
+from alembic.config import Config
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.utils import get_openapi
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+from app.api.v1.router import router as api_router
+from app.core.config import settings
+from app.core.exception_handlers import (
+    http_exception_handler,
+    validation_exception_handler,
+    general_exception_handler
+)
+from app.core.logger import configure_logging
 from app.middleware.auth_middleware import AuthMiddleware
 from app.middleware.db_middleware import DBSessionMiddleware
-from app.api.v1.router import router as api_router
-from app.core.logger import configure_logging
-from alembic.config import Config
-from alembic import command
-import logging
-from app.core.config import settings
 
 configure_logging()
 
@@ -47,6 +56,11 @@ def custom_openapi():
 app.openapi = custom_openapi
 
 app.include_router(api_router, prefix="/api/v1")
+
+# Add Exception Handlers
+app.add_exception_handler(StarletteHTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(Exception, general_exception_handler)
 
 
 @app.on_event("startup")
