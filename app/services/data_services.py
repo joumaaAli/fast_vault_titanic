@@ -9,22 +9,23 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
-from app.crud.data_record import get_all_data_records, convert_data_records_to_dataframe
+from app.crud.data_record import get_all_data_records_from_csv, convert_data_records_to_dataframe
 from app.crud.synthetic import get_synthetic_data_by_id, save_synthetic_data
 from app.entities.synthetic_data import SyntheticData
 from app.utils.anonymize import anonymize_data
 from app.utils.evaluators import evaluate_data_quality
 from app.utils.factories import SynthesizerFactory
-
+from app.core.config import settings
 logger = logging.getLogger(__name__)
 
+csv_path = settings.csv
 
 def generate_synthetic_data(db, synthesizer_type: str):
     logger.info(f"Starting synthetic data generation with synthesizer type: {synthesizer_type}")
 
-    data_records = get_all_data_records(db)
-    data = convert_data_records_to_dataframe(data_records)
-    original_data_ids = list(data['id'])
+    data = get_all_data_records_from_csv(csv_path)
+
+    original_data_ids = list(data['id']) if 'id' in data.columns else []
 
     # Drop 'name', 'email', 'ticket', and 'cabin' columns
     data = data.drop(columns=['id', 'name', 'email', 'ticket', 'cabin'], errors='ignore')
@@ -58,8 +59,8 @@ def evaluate_synthetic_data(db, synthetic_data_id: int):
         raise ValueError("Synthetic data not found")
 
     original_data_ids = json.loads(synthetic_data_record.original_data_ids)
-    original_data_records = get_all_data_records(db)
-    real_data = convert_data_records_to_dataframe(original_data_records)
+
+    real_data = get_all_data_records_from_csv(csv_path)
     synthetic_data = pd.read_json(synthetic_data_record.data)
 
     # Drop columns that are not used for evaluation
@@ -81,8 +82,7 @@ def augment_and_train(db, synthesizer_type: str, augmentation_factor: int):
     logger.info(
         f"Starting data augmentation and training with synthesizer type: {synthesizer_type}, augmentation factor: {augmentation_factor}")
 
-    data_records = get_all_data_records(db)
-    data = convert_data_records_to_dataframe(data_records)
+    data = get_all_data_records_from_csv(db)
 
     # Drop 'name', 'email', 'ticket', and 'cabin' columns
     data = data.drop(columns=['id', 'name', 'email', 'ticket', 'cabin'], errors='ignore')
