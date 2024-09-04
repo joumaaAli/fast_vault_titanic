@@ -19,9 +19,3 @@ services:
       options:
         max-size: "10m"  # Limit log file size to 10 MB
         max-file: "3"    # Keep at most 3 log files
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/health/status"]
-      interval: 30s       # Check every 30 seconds
-      timeout: 10s        # Time out after 10 seconds
-      retries: 3          # Consider the container unhealthy after 3 failures
-      start_period: 40s   # Wait 40 seconds before starting health checks
