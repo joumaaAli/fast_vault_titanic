@@ -10,7 +10,9 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')
 sys.path.insert(0, parent_dir)
 
 # Import your Base and DATABASE_URL from the database module within the app package
-from app.database import Base, DATABASE_URL
+from app.core.config import DATABASE_URL
+from app.db.base import Base
+
 
 config = context.config
 # this is the Alembic Config object, which provides
