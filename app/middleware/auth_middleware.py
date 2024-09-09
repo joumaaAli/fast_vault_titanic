@@ -1,10 +1,17 @@
 # app/middleware/auth_middleware.py
 import logging
+
 from fastapi import HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from app.utils.jwt import verify_token
-from app.crud.user import get_user_by_username, get_user_by_id  # Import your function to get user details
+
+from app.core.config import settings
+from app.use_cases.services.jwt_service import JWTService
+
+algorithm = settings.algorithm
+secret_key = settings.secret_key
+
+jwt_service = JWTService(secret_key, algorithm)
 
 logger = logging.getLogger(__name__)
 
@@ -25,24 +32,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 if token_type.lower() != "bearer":
                     raise HTTPException(status_code=401, detail="Invalid token type")
 
-                payload = verify_token(token)
+                payload = jwt_service.verify_token(token)
                 if payload is None:
                     raise HTTPException(status_code=401, detail="Invalid or expired token")
-
-                user_id = payload.get("sub")
-                if user_id:
-                    db = getattr(request.state, 'db', None)
-                    if db is None:
-                        raise HTTPException(status_code=500, detail="Database session not available")
-
-                    user = get_user_by_id(db, user_id)  # Ensure this function exists and works
-                    if user:
-                        request.state.user = user
-                    else:
-                        raise HTTPException(status_code=401, detail="User not found")
-                else:
-                    raise HTTPException(status_code=401, detail="User ID missing in token payload")
-
+                request.state.user = payload
             except ValueError:
                 raise HTTPException(status_code=401, detail="Invalid token")
         else:

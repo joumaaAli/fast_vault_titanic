@@ -8,3 +8,11 @@ class User(BaseModel):
     model_config = {
         'from_attributes': True  # Enables validation from ORM attributes
     }
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class RegisterRequest(BaseModel):
+    username: str
+    email: str
+    password: str

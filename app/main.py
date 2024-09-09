@@ -1,17 +1,12 @@
 # app/main.py
 
 import logging
-import os
 
-from alembic import command
-from alembic.config import Config
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.utils import get_openapi
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.api.v1.router import router as api_router
-from app.core.config import settings
 from app.core.exception_handlers import (
     http_exception_handler,
     validation_exception_handler,
@@ -19,7 +14,8 @@ from app.core.exception_handlers import (
 )
 from app.core.logger import configure_logging
 from app.middleware.auth_middleware import AuthMiddleware
-from app.middleware.db_middleware import DBSessionMiddleware
+from app.presentation.controlllers.auth_controller import router as auth_controller
+from app.presentation.controlllers.synthetic_data_controller import router as synthetic_data_controller
 
 configure_logging()
 
@@ -29,8 +25,8 @@ app = FastAPI()
 # Add AuthMiddleware after DBSessionMiddleware
 app.add_middleware(AuthMiddleware)
 
-# Add DBSessionMiddleware first
-app.add_middleware(DBSessionMiddleware)
+app.include_router(auth_controller, prefix="/auth", tags=["auth"])
+app.include_router(synthetic_data_controller, prefix="/synthetic", tags=["synthetic"])
 
 
 def custom_openapi():
@@ -54,8 +50,6 @@ def custom_openapi():
     return app.openapi_schema
 
 app.openapi = custom_openapi
-
-app.include_router(api_router, prefix="/api/v1")
 
 # Add Exception Handlers
 app.add_exception_handler(StarletteHTTPException, http_exception_handler)
