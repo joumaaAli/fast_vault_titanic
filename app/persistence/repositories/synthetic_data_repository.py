@@ -1,12 +1,13 @@
-from sqlalchemy.orm import Session
-from app.db.models.synthetic_data import DBSyntheticData
-from app.entities.synthetic_data import SyntheticData
-from app.db.session import get_db
 import pandas as pd
 
+from app.db.models.synthetic_data import DBSyntheticData
+from app.db.session import get_db
+from app.entities.synthetic_data import SyntheticData
+
+
 class SyntheticDataRepository:
-    def __init__(self, db: Session = None):
-        self.db = db or next(get_db())
+    def __init__(self):
+        self.db = next(get_db())
 
     def get_synthetic_data_by_id(self, synthetic_data_id: int) -> SyntheticData | None:
         """Fetch synthetic data by ID."""

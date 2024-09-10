@@ -4,8 +4,8 @@ from app.entities.user import User
 from app.db.session import get_db
 
 class UserRepository:
-    def __init__(self, db: Session = None):
-        self.db = db or next(get_db())
+    def __init__(self):
+        self.db = next(get_db())
 
     def get_user_by_username(self, username: str) -> User | None:
         """Fetch user by username."""
