@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.utils import get_openapi
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from app.container import AppContainer
 
 from app.core.exception_handlers import (
     http_exception_handler,
@@ -14,8 +15,8 @@ from app.core.exception_handlers import (
 )
 from app.core.logger import configure_logging
 from app.middleware.auth_middleware import AuthMiddleware
-from app.presentation.controlllers.auth_controller import router as auth_controller
-from app.presentation.controlllers.synthetic_data_controller import router as synthetic_data_controller
+from app.presentation.controllers.auth_controller import router as auth_controller
+from app.presentation.controllers.synthetic_data_controller import router as synthetic_data_controller
 
 configure_logging()
 
@@ -23,10 +24,11 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 # Add AuthMiddleware after DBSessionMiddleware
-app.add_middleware(AuthMiddleware)
 
 app.include_router(auth_controller, prefix="/auth", tags=["auth"])
 app.include_router(synthetic_data_controller, prefix="/synthetic", tags=["synthetic"])
+
+container = AppContainer()
 
 
 def custom_openapi():

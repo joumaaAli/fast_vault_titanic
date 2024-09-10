@@ -1,18 +1,21 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from dependency_injector.wiring import inject, Provide
 from app.entities.user import LoginRequest, RegisterRequest
 from app.persistence.repositories.user_repository import UserRepository
 from app.utils.password_hasher import PasswordHasher
 from app.use_cases.services.jwt_service import JWTService
+from app.container import AppContainer
 
 router = APIRouter()
 
-password_hasher = PasswordHasher()
-jwt_service = JWTService(secret_key="your-secret", algorithm="HS256")
-
-
 @router.post("/login")
-def login(request: LoginRequest):
-    user_repo = UserRepository()
+@inject
+def login(
+    request: LoginRequest,
+    user_repo: UserRepository = Depends(Provide[AppContainer.user_repository]),
+    password_hasher: PasswordHasher = Depends(Provide[AppContainer.password_hasher]),
+    jwt_service: JWTService = Depends(Provide[AppContainer.jwt_service])
+):
     user = user_repo.get_user_by_username(request.username)
     user_repo.close()
 
@@ -24,9 +27,12 @@ def login(request: LoginRequest):
 
 
 @router.post("/register")
-def register(request: RegisterRequest):
-    user_repo = UserRepository()
-
+@inject
+def register(
+    request: RegisterRequest,
+    user_repo: UserRepository = Depends(Provide[AppContainer.user_repository]),
+    password_hasher: PasswordHasher = Depends(Provide[AppContainer.password_hasher])
+):
     if user_repo.get_user_by_username(request.username):
         user_repo.close()
         raise HTTPException(status_code=400, detail="Username already registered")

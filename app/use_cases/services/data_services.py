@@ -111,7 +111,7 @@ class DataService:
         metadata.detect_from_dataframe(data)
 
         # Generate synthetic data
-        synthesizer = self.factory.create_synthesizer(synthesizer_type, metadata)
+        synthesizer = self.factory.get_synthesizer(synthesizer_type, metadata)
         synthesizer.fit(data)
         synthetic_data = synthesizer.sample(num_rows=len(data) * augmentation_factor)
 
@@ -135,3 +135,4 @@ class DataService:
 
         logger.info(f"Model training completed successfully with accuracy: {accuracy}")
         return accuracy
+

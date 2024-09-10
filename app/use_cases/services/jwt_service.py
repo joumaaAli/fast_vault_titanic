@@ -1,6 +1,6 @@
-import jwt
 from datetime import datetime, timedelta
-from app.core.config import settings
+
+import jwt
 
 
 class JWTService:
