@@ -6,6 +6,14 @@ from app.entities.synthetic_data import SyntheticData
 
 
 class SyntheticDataRepository:
+    """
+       Repository class for handling operations related to synthetic data.
+
+       Methods:
+           get_synthetic_data_by_id(synthetic_data_id): Fetches synthetic data by ID.
+           save_synthetic_data(synthesizer_type, data, original_data_ids): Saves new synthetic data.
+           get_all_data_records_from_csv(csv_path): Reads and returns all records from a CSV file.
+   """
     def __init__(self):
         self.db = next(get_db())
 

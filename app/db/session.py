@@ -8,6 +8,9 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base: DeclarativeMeta = declarative_base()
 
 def get_db():
+    """
+    Provides a database session for use in routes and services.
+    """
     db = SessionLocal()
     try:
         yield db

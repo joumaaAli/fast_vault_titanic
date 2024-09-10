@@ -4,6 +4,15 @@ from app.entities.user import User
 from app.db.session import get_db
 
 class UserRepository:
+    class UserRepository:
+     """
+    Repository class for handling operations related to users.
+
+    Methods:
+        get_user_by_username(username): Fetches a user by their username.
+        create_user(user_data): Creates a new user in the database.
+        get_user_by_id(user_id): Fetches a user by their ID.
+    """
     def __init__(self):
         self.db = next(get_db())
 

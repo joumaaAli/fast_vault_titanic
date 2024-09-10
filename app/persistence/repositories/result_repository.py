@@ -3,6 +3,13 @@ from app.db.session import get_db
 from app.db.models.result import DBResult
 
 class ResultRepository:
+    """
+        Repository class for handling operations related to the Result model.
+
+        Methods:
+            create_result(task_id, accuracy): Creates a new result entry in the database.
+            get_result_by_task_id(task_id): Fetches the result by task_id.
+    """
     def __init__(self):
         self.db = next(get_db())
 

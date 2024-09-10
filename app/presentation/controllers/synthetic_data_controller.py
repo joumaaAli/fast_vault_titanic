@@ -19,6 +19,17 @@ async def generate_synthetic_data_endpoint(
     synthesizer_type: SynthesizerType,
     data_service: DataService = Depends(Provide[AppContainer.data_service])
 ):
+    """
+        Endpoint to generate synthetic data based on a specified synthesizer type.
+
+        Args:
+            request (Request): The request object.
+            synthesizer_type (SynthesizerType): Type of synthesizer to use.
+            data_service (DataService): Data service to handle data generation logic.
+
+        Returns:
+            dict: Synthetic data ID and synthesizer type used.
+    """
     try:
         synthetic_data_id = data_service.generate_synthetic_data(synthesizer_type)
         return {"id": synthetic_data_id, "synthesizer_type": synthesizer_type.value}
@@ -37,6 +48,20 @@ async def augment_and_train_endpoint(
     task_status_service: TaskStatusService = Depends(Provide[AppContainer.task_status_service]),
     data_service: DataService = Depends(Provide[AppContainer.data_service]),
 ):
+    """
+        Endpoint to start an asynchronous data augmentation and model training process.
+
+        Args:
+            background_tasks (BackgroundTasks): Background tasks to handle async processes.
+            synthesizer_type (SynthesizerType): Type of synthesizer to use.
+            augmentation_factor (int): Factor by which to augment the data.
+            description (str): Description of the task.
+            task_status_service (TaskStatusService): Service to handle task statuses.
+            data_service (DataService): Service to handle data augmentation and training.
+
+        Returns:
+            dict: Task ID and initiation status.
+        """
     try:
         # Create the task using the TaskService, including a description and created_at timestamp
         task_id = task_status_service.create_task(description)
@@ -64,6 +89,15 @@ async def evaluate_synthetic_data_endpoint(
     synthetic_data_id: int,
     data_service: DataService = Depends(Provide[AppContainer.data_service])
 ):
+    """"
+    Endpoint to evaluate a synthetic data based on a specified synthesizer type.
+    Args:
+        request (Request): The request object.
+        synthetic_data_id (int): Synthetic data ID.
+        data_service (DataService): Data service to handle data evaluation.
+    Returns:
+        score: score of the evaluted synthetic data
+    """
     try:
         scores = data_service.evaluate_synthetic_data(synthetic_data_id)
         return scores
@@ -77,6 +111,16 @@ async def get_result_by_task_id(
     task_id: str,
     result_service: ResultService = Depends(Provide[AppContainer.result_service])
 ):
+    """
+     Endpoint to retrieve the accuracy of a task result by task ID.
+
+     Args:
+         task_id (str): ID of the task.
+         result_service (ResultService): Service to fetch result data.
+
+     Returns:
+         dict: Task ID and accuracy.
+     """
     try:
         result = result_service.get_result_by_task_id(task_id)
         if result is None:
@@ -92,6 +136,16 @@ async def get_task_status(
     task_id: int,
     task_status_service: TaskStatusService = Depends(Provide[AppContainer.task_status_service])
 ):
+    """
+       Endpoint to get the current status of a task by task ID.
+
+       Args:
+           task_id (int): ID of the task.
+           task_status_service (TaskStatusService): Service to fetch task status.
+
+       Returns:
+           dict: Task ID and status.
+       """
     try:
         status = task_status_service.get_task_status(task_id)
         if status is None:

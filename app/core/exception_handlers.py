@@ -7,8 +7,16 @@ logger = logging.getLogger(__name__)
 
 async def http_exception_handler(request: Request, exc: HTTPException):
     """
-    Handles HTTP exceptions and logs them.
+    Custom HTTP exception handler for FastAPI to log and return structured responses.
+
+    Args:
+        request (Request): The request object.
+        exc (HTTPException): The HTTPException raised.
+
+    Returns:
+        JSONResponse: JSON response with status code and error message.
     """
+
     logger.error(f"HTTPException occurred: {exc.detail}")
     return JSONResponse(
         status_code=exc.status_code,

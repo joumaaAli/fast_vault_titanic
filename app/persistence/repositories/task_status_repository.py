@@ -5,14 +5,19 @@ from app.db.models.task_status import DBTaskStatus, TaskStatusEnum
 from app.entities.task_status import TaskStatus as TaskStatusEntity
 
 class TaskStatusRepository:
+    """
+       Repository class for handling operations related to task status.
+
+       Methods:
+           create_task(description, created_at): Creates a new task with the given description.
+           update_task_status(task_id, status, accuracy, error): Updates the status of the task.
+           get_task(task_id): Fetches the task by task_id.
+           get_task_status(task_id): Fetches the current status of the task.
+   """
     def __init__(self):
         self.db = next(get_db())
 
     def create_task(self, description: str, created_at):
-        """
-        Creates a task with the given description and created_at timestamp.
-        """
-        # Create a new task with the given description, created_at, and queued status
         new_task = DBTaskStatus(
             status=TaskStatusEnum.QUEUED,
             description=description,

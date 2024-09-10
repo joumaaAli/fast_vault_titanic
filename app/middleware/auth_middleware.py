@@ -16,6 +16,15 @@ jwt_service = JWTService(secret_key, algorithm)
 logger = logging.getLogger(__name__)
 
 class AuthMiddleware(BaseHTTPMiddleware):
+    """
+        Middleware to handle JWT-based authentication.
+
+        Attributes:
+            public_paths (list): List of paths that don't require authentication.
+
+        Methods:
+            dispatch(request, call_next): Processes the request and checks for JWT tokens.
+    """
     async def dispatch(self, request: Request, call_next):
         # Define paths that don't require authentication
         public_paths = ["/favicon.ico", "/docs", "/openapi.json", "/auth/token", "/auth/login", "/auth/register"]
