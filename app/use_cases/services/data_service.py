@@ -3,8 +3,6 @@ import logging
 
 from app.core.config import settings
 from app.entities.synthetic_data import SynthesizerType
-from app.entities.task_status import TaskStatusEnum
-from app.persistence.repositories.task_status_repository import TaskStatusRepository
 
 logger = logging.getLogger(__name__)
 

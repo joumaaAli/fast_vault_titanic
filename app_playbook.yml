@@ -1,0 +1,57 @@
+- name: Setup
+  hosts: localhost
+  connection: local
+  vars:
+    new_project_dir: "{{ lookup('env', 'HOME') }}/projects/new_project"
+  tasks:
+    - name: Ensure the new project directory exists
+      ansible.builtin.file:
+        path: "{{ new_project_dir }}"
+        state: directory
+        mode: '0777'
+
+    - name: Copy project files to new directory
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}"
+        dest: "{{ new_project_dir }}"
+        remote_src: yes
+
+    - name: Create Python virtual environment in new directory
+      ansible.builtin.command:
+        cmd: python3 -m venv venv
+      args:
+        chdir: "{{ new_project_dir }}"
+
+    - name: Upgrade pip in the virtual environment
+      ansible.builtin.command:
+        cmd: ./venv/bin/pip install --upgrade pip
+      args:
+        chdir: "{{ new_project_dir }}"
+      register: pip
+
+    - name: Install pipreqs in the virtual environment
+      ansible.builtin.command:
+        cmd: ./venv/bin/pip install pipreqs
+      args:
+        chdir: "{{ new_project_dir }}"
+      register: pipreqs_install
+
+    - name: Generate requirements.txt using pipreqs
+      ansible.builtin.command:
+        cmd: ./venv/bin/pipreqs --force .
+      args:
+        chdir: "{{ new_project_dir }}"
+      register: requirements_generation
+
+    - name: Install all dependencies from requirements.txt
+      ansible.builtin.command:
+        cmd: ./venv/bin/pip install --default-timeout=1000 -r requirements.txt
+      args:
+        chdir: "{{ new_project_dir }}"
+      register: dependencies_install
+
+    - name: Create the .env file in new directory
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/.env"
+        dest: "{{ new_project_dir }}/.env"
+        mode: '0777'
